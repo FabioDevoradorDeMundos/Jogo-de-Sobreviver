@@ -1,0 +1,45 @@
+body{
+    background-color: #141519;
+}
+
+canvas{
+    background-color: black;
+    box-shadow:0 0 20px #d53;
+    
+}
+
+.tela{
+    text-align: center;
+    justify-content: center;
+    margin-top:20px;
+
+}
+
+span{
+    color: white;
+    padding-left: 580px;
+
+}
+
+.hud{
+    
+    font-size: 32px;
+
+}
+
+.container{
+    text-align: center;
+    
+    
+}
+
+#comecar{
+    cursor: pointer;
+    font-size:22px ;
+}
+
+#comecar:hover{
+    background-color: black;
+    color: white;
+    font-size: 24px;
+}

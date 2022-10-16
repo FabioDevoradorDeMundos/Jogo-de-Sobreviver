@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/jogoSobrevivencia.css">
+    <title>Sobrevivência</title>
+</head>
+<body>
+    <div class='tela'>
+    <canvas width="800px" height="800px"></canvas>
+    </div>
+    <div class="hud">
+        <span id="pontos">0</span>
+        <span id="HighScore" class="highscore">HighScore:0</span>
+
+    </div>
+    <div class="container">
+        <input type="submit" id="comecar" value="Começar">
+
+    </div>
+    
+    <audio id="musica">
+        <source src="audios/jogoSobrevivenciaMusica.mp3">
+    </audio>
+
+    <audio id="tiro">
+        <source src="audios/Laser.mp3">
+
+    </audio>
+
+</body>
+</html>
+
+<script>
+    const tela = document.querySelector('canvas')
+    const pincel = tela.getContext('2d')
+    const pontosHUD = document.querySelector('#pontos')
+    const HighScoreHUD = document.querySelector('#HighScore') 
+    const btn = document.querySelector('#comecar')
+    const musica = document.querySelector('#musica')
+    const laser = document.querySelector('#tiro')
+
+    //HUD
+    let pontos = 0
+    let HighScore = 0
+  
+
+
+    //Main Character Propriedades
+    let corMc = 'orange' 
+    let alturaMc = 25
+    let larguraMc = 25
+    let xMc = tela.width/2
+    let yMc = tela.height/2
+    let velocidadeMc = 5
+    let vivo = false
+
+    //Andar
+    let cima = false
+    let baixo = false
+    let direita = false
+    let esquerda = false
+
+    //Tiro Propriedades
+    let corTiro = 'yellow'
+    let larguraTiro = 5
+    let alturaTiro = 5
+    let velocidadeTiro = 5
+    let xTiro = xMc + 10
+    let yTiro = yMc + 10
+
+    //Inimigo Propriedades
+    let corInimigo = 'red'
+    let alturaInimigo = 40
+    let larguraInimigo = 40
+    let xInimigo = 200
+    let yInimigo = 200
+    let xInimigo2 = 600
+    let yInimigo2 = 200
+    let xInimigo3 = 200
+    let yInimigo3 = 600
+    let xInimigo4 = 600
+    let yInimigo4 = 600
+    let velocidadeInimigo = 2
+
+
+    function desenha(cor,x,y,altura,largura){
+        pincel.fillStyle = cor
+        pincel.fillRect(x,y,altura,largura)
+
+    }
+
+    function limpa(){
+        pincel.clearRect(0,0,800,800)
+
+    }
+
+    function movimenta(e){
+        
+        if(e.keyCode == 37){
+           
+            esquerda = true
+            cima = false
+            baixo = false
+            direita = false
+ 
+            
+        }
+
+        if(e.keyCode == 39){
+      
+            direita = true
+            cima = false
+            baixo = false
+            esquerda = false
+        }
+
+        if(e.keyCode == 38){
+            
+            cima = true 
+            esquerda = false
+            baixo = false
+            direita = false
+        }
+
+        if(e.keyCode == 40){
+          
+            baixo = true
+            cima = false
+            esquerda = false
+            direita = false
+        }
+    }    
+
+    function anda(){
+        if(esquerda){
+            if(xMc > 0){
+                xMc -= velocidadeMc
+                xTiro -= velocidadeMc
+            }
+        }
+
+        if(direita){
+            if(xMc + larguraMc < 800){
+                xMc += velocidadeMc
+                xTiro += velocidadeMc
+            }
+        }
+
+        if(cima){
+            if(yMc > 0){
+                yMc -= velocidadeMc
+              yTiro -= velocidadeMc
+            }
+        }
+
+        if(baixo){
+            if(yMc + alturaMc < 800){
+                yMc += velocidadeMc
+             yTiro += velocidadeMc
+            }
+        }
+
+        
+        
+    }
+
+    function para(e){
+        if(e.keyCode == 37){
+            esquerda = false
+        }
+        if(e.keyCode == 39){
+            direita = false
+        }
+        if(e.keyCode == 38){
+            cima = false
+        }
+        if(e.keyCode == 40){
+            baixo = false
+        }
+
+
+    }
+
+    function atira(e){
+        
+        if(vivo){
+            if(e.keyCode == 87){
+                yTiro = yMc + 10
+                xTiro = xMc +10
+                //laser.play()
+                if( yInimigo < yMc && xInimigo - larguraInimigo < xMc && xInimigo + larguraInimigo > xMc){
+                mataInimigo()
+                } 
+                if( yInimigo2 < yMc && xInimigo2 - larguraInimigo < xMc && xInimigo2 + larguraInimigo > xMc){
+                mataInimigo2()
+                } 
+                if( yInimigo3 < yMc && xInimigo3 - larguraInimigo < xMc && xInimigo3 + larguraInimigo > xMc){
+                mataInimigo3()
+                } 
+                if( yInimigo4 < yMc && xInimigo4 - larguraInimigo < xMc && xInimigo4 + larguraInimigo > xMc){
+                mataInimigo4()
+                } 
+
+                while(yTiro > 0 ){
+                desenha(corTiro,xTiro,yTiro,alturaTiro,larguraTiro)
+                yTiro -= velocidadeTiro
+            }
+            }
+
+            if(e.keyCode == 83){
+                yTiro = yMc 
+                xTiro = xMc 
+                //laser.play()
+                if( yInimigo > yMc && xInimigo - larguraInimigo < xMc && xInimigo + larguraInimigo > xMc){
+                mataInimigo()
+                } 
+                if( yInimigo2 > yMc && xInimigo2 - larguraInimigo < xMc && xInimigo2 + larguraInimigo > xMc){
+                mataInimigo2()
+                } 
+                if( yInimigo3 > yMc && xInimigo3 - larguraInimigo < xMc && xInimigo3 + larguraInimigo > xMc){
+                mataInimigo3()
+                } 
+                if( yInimigo4 > yMc && xInimigo4 - larguraInimigo < xMc && xInimigo4 + larguraInimigo > xMc){
+                mataInimigo4()
+                } 
+
+                while(yTiro < 800 ){
+                desenha(corTiro,xTiro,yTiro,alturaTiro,larguraTiro)
+                yTiro += velocidadeTiro
+            }
+            }
+        
+            if(e.keyCode == 65){
+                yTiro = yMc 
+                xTiro = xMc 
+               //laser.play()
+               if( xInimigo < xMc && yInimigo - alturaInimigo < yMc && yInimigo + alturaInimigo > yMc){
+                mataInimigo()
+                }  
+                if( xInimigo2 < xMc && yInimigo2 - alturaInimigo < yMc && yInimigo2 + alturaInimigo > yMc){
+                mataInimigo2()
+                }
+                if( xInimigo3 < xMc && yInimigo3 - alturaInimigo < yMc && yInimigo3 + alturaInimigo > yMc){
+                mataInimigo3()
+                }
+                if( xInimigo4 < xMc && yInimigo4 - alturaInimigo < yMc && yInimigo4 + alturaInimigo > yMc){
+                mataInimigo4()
+                }
+
+                while(xTiro > 0 ){
+                desenha(corTiro,xTiro,yTiro,alturaTiro,larguraTiro)
+                xTiro -= velocidadeTiro
+            }
+            }
+
+            if(e.keyCode == 68){   
+                yTiro = yMc 
+                xTiro = xMc 
+                //laser.play()
+                if( xInimigo > xMc && yInimigo - alturaInimigo < yMc && yInimigo + alturaInimigo > yMc){
+                mataInimigo()
+                } 
+                if( xInimigo2 > xMc && yInimigo2 - alturaInimigo < yMc && yInimigo2 + alturaInimigo > yMc){
+                    mataInimigo2()
+                }
+                if( xInimigo3 > xMc && yInimigo3 - alturaInimigo < yMc && yInimigo3 + alturaInimigo > yMc){
+                    mataInimigo3()
+                }
+                if( xInimigo4 > xMc && yInimigo4 - alturaInimigo < yMc && yInimigo4 + alturaInimigo > yMc){
+                    mataInimigo4()
+                }
+
+                while(xTiro < 800 ){
+                desenha(corTiro,xTiro,yTiro,alturaTiro,larguraTiro)
+                xTiro += velocidadeTiro
+            }
+            }
+        }
+    yTiro = -1000
+    xTiro = -1000
+}
+
+    function desenhaMc(){
+    pincel.shadowColor = '#d53'
+    pincel.shadowBlur = 20
+    pincel.lineJoin = 'bevel'
+    pincel.lineWidth =5
+
+    desenha(corMc,xMc,yMc,alturaMc,larguraMc)
+
+}
+
+    function desenhaInimigo(){
+        spawnaInimigo()
+      
+
+        desenha(corInimigo,xInimigo,yInimigo,alturaInimigo,larguraInimigo)
+        
+        
+        desenha(corInimigo,xInimigo2,yInimigo2,alturaInimigo,larguraInimigo)
+        
+        
+        desenha(corInimigo,xInimigo3,yInimigo3,alturaInimigo,larguraInimigo)
+        
+        
+        desenha(corInimigo,xInimigo4,yInimigo4,alturaInimigo,larguraInimigo)
+
+
+    }
+
+    function spawnaInimigo(){
+        if(xInimigo == -100 && yInimigo == -100){ 
+        xInimigo = Math.round((Math.random() *800) )
+         yInimigo = Math.round((Math.random() *800) )
+
+    
+        }
+
+        if(xInimigo2 == -100 && yInimigo2 == -100){ 
+        xInimigo2 = Math.round((Math.random() *800)  )
+         yInimigo2 = Math.round((Math.random() *800)  )
+         
+        }
+
+        if(xInimigo3 == -100 && yInimigo3 == -100){ 
+        xInimigo3 = Math.round((Math.random() *800)  )
+         yInimigo3 = Math.round((Math.random() *800)  )
+         
+        }
+
+        if(xInimigo4 == -100 && yInimigo4 == -100){ 
+        xInimigo4 = Math.round((Math.random() *800)  )
+         yInimigo4 = Math.round((Math.random() *800)  )
+        
+        }
+
+        
+
+        
+
+         
+
+         
+
+    }
+
+    function movimentaInimigo(){
+        if(xInimigo > xMc){
+            xInimigo -= velocidadeInimigo
+        }
+
+        if(xInimigo < xMc){
+            xInimigo += velocidadeInimigo
+        }
+
+        if(yInimigo > yMc){
+            yInimigo -= velocidadeInimigo
+
+        }
+
+        if(yInimigo < yMc){
+            yInimigo += velocidadeInimigo
+
+        }
+
+        
+
+        //Inimigo 2
+        if(xInimigo2 > xMc){
+            xInimigo2 -= velocidadeInimigo
+        }
+
+        if(xInimigo2 < xMc){
+            xInimigo2 += velocidadeInimigo
+        }
+
+        if(yInimigo2 > yMc){
+            yInimigo2 -= velocidadeInimigo
+
+        }
+
+        if(yInimigo2 < yMc){
+            yInimigo2 += velocidadeInimigo
+
+        }
+
+        //Inimigo 3
+
+        if(xInimigo3 > xMc){
+            xInimigo3 -= velocidadeInimigo
+        }
+
+        if(xInimigo3 < xMc){
+            xInimigo3 += velocidadeInimigo
+        }
+
+        if(yInimigo3 > yMc){
+            yInimigo3 -= velocidadeInimigo
+
+        }
+
+        if(yInimigo3 < yMc){
+            yInimigo3 += velocidadeInimigo
+
+        }
+
+        //Inimigo 4
+        if(xInimigo4 > xMc){
+            xInimigo4 -= velocidadeInimigo
+        }
+
+        if(xInimigo4 < xMc){
+            xInimigo4 += velocidadeInimigo
+        }
+
+        if(yInimigo4 > yMc){
+            yInimigo4 -= velocidadeInimigo
+
+        }
+
+        if(yInimigo4 < yMc){
+            yInimigo4 += velocidadeInimigo
+
+        }
+
+        colideInimigo()
+
+    }
+
+    function colideInimigo(){
+        if(xInimigo + larguraInimigo > xMc && xInimigo - larguraInimigo < xMc &&
+            yInimigo + alturaInimigo > yMc && yInimigo - alturaInimigo < yMc){
+            morre()
+        }
+
+        if(xInimigo2 + larguraInimigo > xMc && xInimigo2 - larguraInimigo < xMc &&
+            yInimigo2 + alturaInimigo > yMc && yInimigo2 - alturaInimigo < yMc){
+            morre()
+        }
+
+        if(xInimigo3 + larguraInimigo > xMc && xInimigo3 - larguraInimigo < xMc &&
+            yInimigo3 + alturaInimigo > yMc && yInimigo3 - alturaInimigo < yMc){
+            morre()
+        }
+
+        if(xInimigo4 + larguraInimigo > xMc && xInimigo4 - larguraInimigo < xMc &&
+            yInimigo4 + alturaInimigo > yMc && yInimigo4 - alturaInimigo < yMc){
+            morre()
+        }
+
+
+
+
+    }
+
+    function morre(){
+       vivo = false
+        if(pontos > HighScore){
+            HighScore = pontos
+            HighScoreHUD.innerHTML = 'HighScore:'+HighScore
+        }
+
+    }
+
+    function mataInimigo(){
+        xInimigo = -100
+       yInimigo = -100
+        pontos+=10
+        pontosHUD.innerHTML = pontos
+    }
+
+    function mataInimigo2(){
+        xInimigo2 = -100
+       yInimigo2 = -100
+       pontos+=10
+        pontosHUD.innerHTML = pontos
+}
+
+    function mataInimigo3(){
+        xInimigo3 = -100
+       yInimigo3 = -100
+       pontos+=10
+        pontosHUD.innerHTML = pontos
+        
+}
+
+    function mataInimigo4(){
+        xInimigo4 = -100
+       yInimigo4 = -100
+       pontos+=10
+        pontosHUD.innerHTML = pontos
+}
+
+    function comeca(){
+    musica.play()
+    vivo = true
+    xInimigo = 200
+    yInimigo = 200
+    xInimigo2 = 600
+    yInimigo2 = 200
+    xInimigo3 = 200
+    yInimigo3 = 600
+    xInimigo4 = 600
+    yInimigo4 = 600
+    xMc = tela.width/2
+    yMc = tela.height/2
+    pontos = 0
+    pontosHUD.innerHTML = pontos
+}
+
+    function atualiza(){
+        if(vivo){
+        limpa()
+        desenhaMc()
+        anda()
+        desenhaInimigo()
+        movimentaInimigo()
+        }
+
+        
+
+    }
+
+    document.addEventListener('keydown',movimenta)
+    document.addEventListener('keyup',para)
+    document.addEventListener('keyup',atira)
+    btn.addEventListener('click',comeca)
+
+    setInterval(atualiza,24)
+    
+
+</script>
